@@ -1,7 +1,7 @@
 --https://github.com/Rotfuchs-von-Vulpes/what_is_this_uwu-minetest/blob/master/help.lua
 local gs_timer = 0
 local gs_interval = 1
-
+--[[
 minetest.register_globalstep(function(dtime)
     gs_timer = gs_timer + dtime
     if gs_timer >= gs_interval then
@@ -85,7 +85,7 @@ minetest.register_globalstep(function(dtime)
         -- v5.6.0 and later: Optional bounce range, consult the following section
     })
 
-end)
+end)--]]
 local subcmds = {
     toggle = {
         aliases = { "t" },

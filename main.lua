@@ -222,7 +222,7 @@ end
 --holoschem.get_schem_to_table("mcl_structures_coral_fire_2")
 function holoschem.get_schem_to_table(schemname)
     local schemtable = {}
-    local file = io.open(modpath .. "/schematics/" .. name .. ".lua", "r")
+    local file = io.open(modpath .. "/schematics/" .. schemname .. ".lua", "r")
     local filedata
     if file then
         filedata = io.read("*all")
