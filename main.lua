@@ -198,6 +198,8 @@ Call these functions only at load time!
     * If any function returns true, inventory doesn't open
 ]]
 
+-- require "io"
+
 local function hex2num(hex)
     return tonumber(hex, 16)
 end
@@ -222,10 +224,10 @@ end
 --holoschem.get_schem_to_table("mcl_structures_coral_fire_2")
 function holoschem.get_schem_to_table(schemname)
     local schemtable = {}
-    local file = io.open(modpath .. "/schematics/" .. schemname .. ".lua", "r")
+    local file = nil --io.open(modpath .. "/schematics/" .. schemname .. ".lua", "r")
     local filedata
     if file then
-        filedata = io.read("*all")
+        filedata = nil --io.read("*all")
         file:close()
         if filedata then
             schemtable.mtsm = get_mts_str_index(filedata, 0, 4) -- noop
@@ -238,20 +240,19 @@ function holoschem.get_schem_to_table(schemname)
             schemtable.indx = 12 + schemtable.Y + 2
             if schemtable.n_strings and schemtable.n_strings > 0 then
                 for i = 1, schemtable.n_strings, 2 do
-                    local block_str_len = hex2num(get_mts_str_index(filedata, indx, 2))
-                    local block_str = hex2char(get_mts_str_index(filedata, indx + 2, block_str_len))
-                    indx = indx + 2 + block_str_len
+                    local block_str_len = hex2num(get_mts_str_index(filedata, schemtable.indx, 2))
+                    local block_str = hex2char(get_mts_str_index(filedata, schemtable.indx + 2, block_str_len))
+                    schemtable.indx = schemtable.indx + 2 + block_str_len
                     minetest.log(block_str)
                 end
             end
             local schem_volume = schemtable.X * schemtable.Y * schemtable.Z
             -- param0
-            schemtable.block_ids = get_mts_str_index(filedata, indx, 2 * schem_volume)
+            schemtable.block_ids = get_mts_str_index(filedata, schemtable.indx, 2 * schem_volume)
             -- param1
-            schemtable.prob_vals = get_mts_str_index(filedata, indx + 2 * schem_volume, schem_volume)
+            schemtable.prob_vals = get_mts_str_index(filedata, schemtable.indx + 2 * schem_volume, schem_volume)
             -- param2
-            schemtable.rot_info = get_mts_str_index(filedata, indx + 3 * schem_volume, schem_volume)
-            
+            schemtable.rot_info = get_mts_str_index(filedata, schemtable.indx + 3 * schem_volume, schem_volume)
         end
     end
     minetest.log(dump(schemtable))
