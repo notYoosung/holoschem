@@ -3,35 +3,35 @@ local d = 180
 local r = d / 2
 
 rotations.facedir = {
-	[0] = vector.new(0, 0, 0),
-	vector.new( 0,  r,  0),
-	vector.new( 0,  d,  0),
-	vector.new( 0, -r,  0),
+    [0] = vector.new(0, 0, 0),
+    vector.new(0, r, 0),
+    vector.new(0, d, 0),
+    vector.new(0, -r, 0),
 
-	vector.new( r,  0,  0),
-	vector.new( r,  0,  r),
-	vector.new( r,  0,  d),
-	vector.new( r,  0, -r),
+    vector.new(r, 0, 0),
+    vector.new(r, 0, r),
+    vector.new(r, 0, d),
+    vector.new(r, 0, -r),
 
-	vector.new(-r,  0,  0),
-	vector.new(-r,  0, -r),
-	vector.new(-r,  0,  d),
-	vector.new(-r,  0,  r),
+    vector.new(-r, 0, 0),
+    vector.new(-r, 0, -r),
+    vector.new(-r, 0, d),
+    vector.new(-r, 0, r),
 
-	vector.new( 0,  0, -r),
-	vector.new( 0,  r, -r),
-	vector.new( 0,  d, -r),
-	vector.new( 0, -r, -r),
+    vector.new(0, 0, -r),
+    vector.new(0, r, -r),
+    vector.new(0, d, -r),
+    vector.new(0, -r, -r),
 
-	vector.new( 0,  0,  r),
-	vector.new( 0,  r,  r),
-	vector.new( 0,  d,  r),
-	vector.new( 0,  -r,  r),
+    vector.new(0, 0, r),
+    vector.new(0, r, r),
+    vector.new(0, d, r),
+    vector.new(0, -r, r),
 
-	vector.new( 0,  0,  d),
-	vector.new( 0,  r,  d),
-	vector.new( 0,  d,  d),
-	vector.new( 0, -r,  d),
+    vector.new(0, 0, d),
+    vector.new(0, r, d),
+    vector.new(0, d, d),
+    vector.new(0, -r, d),
 }
 
 
@@ -40,120 +40,122 @@ local gs_interval = 0.5
 
 
 local function render_schem()
-	if holoschem.render_particlespwaner_ids == nil then
-		holoschem.render_particlespwaner_ids = {}
-	else
-		if type(holoschem.render_particlespwaner_ids) == "table" then
-			for _, render_particlespwaner_id in ipairs(holoschem.render_particlespwaner_ids) do
-				minetest.delete_particlespawner(render_particlespwaner_id, holoschem.localplayername)
-        holoschem.render_particlespwaner_ids[_] = nil
-			end
-		end
-	end
-	local particlespawnerdef = {
-		-------------------
-		-- Common fields --
-		-------------------
-		-- (same name and meaning in both new and legacy syntax)
-
-		amount = 1,
-		-- Number of particles spawned over the time period `time`.
-
-		time = 0,
-		-- Lifespan of spawner in seconds.
-		-- If time is 0 spawner has infinite lifespan and spawns the `amount` on
-		-- a per-second basis.
-
-		collisiondetection = true,
-		-- If true collide with `walkable` nodes and, depending on the
-		-- `object_collision` field, objects too.
-
-		collision_removal = true,
-		-- If true particles are removed when they collide.
-		-- Requires collisiondetection = true to have any effect.
-
-		object_collision = false,
-		-- If true particles collide with objects that are defined as
-		-- `physical = true,` and `collide_with_objects = true,`.
-		-- Requires collisiondetection = true to have any effect.
-
-		attached = "ObjectRef",
-		-- If defined, particle positions, velocities and accelerations are
-		-- relative to this object's position and yaw
-
-		vertical = false,
-		-- If true face player using y axis only
-
-		texture = "default_dirt.png",
-		-- The texture of the particle
-		-- v5.6.0 and later: also supports the table format described in the
-		-- following section.
-
-		playername = holoschem.localplayername or "",
-		-- Optional, if specified spawns particles only on the player's client
-
-		-- animation = {Tile Animation definition},
-		-- Optional, specifies how to animate the particles' texture
-		-- v5.6.0 and later: set length to -1 to synchronize the length
-		-- of the animation with the expiration time of individual particles.
-		-- (-2 causes the animation to be played twice, and so on)
-
-		glow = 14,
-		-- Optional, specify particle self-luminescence in darkness.
-		-- Values 0-14.
-
-		-- node = {name = "ignore", param2 = 0},
-		-- Optional, if specified the particles will have the same appearance as
-		-- node dig particles for the given node.
-		-- `texture` and `animation` will be ignored if this is set.
-
-		-- node_tile = 0,
-		-- Optional, only valid in combination with `node`
-		-- If set to a valid number 1-6, specifies the tile from which the
-		-- particle texture is picked.
-		-- Otherwise, the default behavior is used. (currently: any random tile)
-
-    minexptime = 1,
-    maxexptime = 1,
-
-
-    pos = vector.new(0,0,0),
-	}
-
-	local player_pos = player:get_pos()
-	local schematic = holoschem.schematic
-	local vector_1 = vector.new(1, 1, 1)
-	local size = schematic.size
-	local voxel_area = VoxelArea:new({MinEdge = vector_1, MaxEdge = size})
-	local schem_data = schematic.data
-	local count = size.x * size.y * size.z
-	local node_black_list = {}
-
-	-- Remove air from the schematic preview
-	for i, map_node in pairs(schem_data) do
-		if map_node.name == "air" then
-			count = count - 1
-			node_black_list[i] = true
-		end
-	end
-	for i in voxel_area:iterp(vector_1, size) do
-		local pos = voxel_area:position(i)
-		local node_name = schematic.data[i].name
-		if not node_black_list[i] and math.random() < probability then
-			local attach_pos = vector.multiply(pos, 10)
-			local node_def = core.get_node_def(node_name) or core.get_item_def(node_name)
-			--[[
-* `core.get_node_def(nodename)`
-    * Returns [node definition](#node-definition) table of `nodename`
-* `core.get_item_def(itemstring)`
-    * Returns item definition table of `itemstring`
-			]]
-    if node_def and node_def.name ~= "air" then
-			local ps = minetest.add_particlespawner(particlespawnerdef)
-			holoschem.render_particlespwaner_ids[#holoschem.render_particlespwaner_ids + 1] = ps
+    if holoschem.render_particlespwaner_ids == nil then
+        holoschem.render_particlespwaner_ids = {}
+    else
+        if type(holoschem.render_particlespwaner_ids) == "table" then
+            for _, render_particlespwaner_id in ipairs(holoschem.render_particlespwaner_ids) do
+                minetest.delete_particlespawner(render_particlespwaner_id, holoschem.localplayername)
+                holoschem.render_particlespwaner_ids[_] = nil
+            end
+        end
     end
-		end
-	end
+    local particlespawnerdef = {
+        -------------------
+        -- Common fields --
+        -------------------
+        -- (same name and meaning in both new and legacy syntax)
+
+        amount = 1,
+        -- Number of particles spawned over the time period `time`.
+
+        time = 0,
+        -- Lifespan of spawner in seconds.
+        -- If time is 0 spawner has infinite lifespan and spawns the `amount` on
+        -- a per-second basis.
+
+        collisiondetection = true,
+        -- If true collide with `walkable` nodes and, depending on the
+        -- `object_collision` field, objects too.
+
+        collision_removal = true,
+        -- If true particles are removed when they collide.
+        -- Requires collisiondetection = true to have any effect.
+
+        object_collision = false,
+        -- If true particles collide with objects that are defined as
+        -- `physical = true,` and `collide_with_objects = true,`.
+        -- Requires collisiondetection = true to have any effect.
+
+        attached = "ObjectRef",
+        -- If defined, particle positions, velocities and accelerations are
+        -- relative to this object's position and yaw
+
+        vertical = false,
+        -- If true face player using y axis only
+
+        texture = "default_dirt.png",
+        -- The texture of the particle
+        -- v5.6.0 and later: also supports the table format described in the
+        -- following section.
+
+        playername = holoschem.localplayername or "",
+        -- Optional, if specified spawns particles only on the player's client
+
+        -- animation = {Tile Animation definition},
+        -- Optional, specifies how to animate the particles' texture
+        -- v5.6.0 and later: set length to -1 to synchronize the length
+        -- of the animation with the expiration time of individual particles.
+        -- (-2 causes the animation to be played twice, and so on)
+
+        glow = 14,
+        -- Optional, specify particle self-luminescence in darkness.
+        -- Values 0-14.
+
+        -- node = {name = "ignore", param2 = 0},
+        -- Optional, if specified the particles will have the same appearance as
+        -- node dig particles for the given node.
+        -- `texture` and `animation` will be ignored if this is set.
+
+        -- node_tile = 0,
+        -- Optional, only valid in combination with `node`
+        -- If set to a valid number 1-6, specifies the tile from which the
+        -- particle texture is picked.
+        -- Otherwise, the default behavior is used. (currently: any random tile)
+
+        minexptime = 1,
+        maxexptime = 1,
+
+
+        pos = vector.new(0, 0, 0),
+    }
+
+    local player_pos = core.localplayer:get_pos()
+    local schematic = holoschem.schematic
+    if schematic then
+        local vector_1 = vector.new(1, 1, 1)
+        local size = schematic.size
+        local voxel_area = VoxelArea:new({ MinEdge = vector_1, MaxEdge = size })
+        local schem_data = schematic.data
+        local count = size.x * size.y * size.z
+        local node_black_list = {}
+
+        -- Remove air from the schematic preview
+        for i, map_node in pairs(schem_data) do
+            if map_node.name == "air" then
+                count = count - 1
+                node_black_list[i] = true
+            end
+        end
+        for i in voxel_area:iterp(vector_1, size) do
+            local pos = voxel_area:position(i)
+            local node_name = schematic.data[i].name
+            if not node_black_list[i] and math.random() < probability then
+                local attach_pos = vector.multiply(pos, 10)
+                local node_def = core.get_node_def(node_name) or core.get_item_def(node_name)
+                --[[
+    * `core.get_node_def(nodename)`
+        * Returns [node definition](#node-definition) table of `nodename`
+    * `core.get_item_def(itemstring)`
+        * Returns item definition table of `itemstring`
+                ]]
+                if node_def and node_def.name ~= "air" then
+                    local ps = minetest.add_particlespawner(particlespawnerdef)
+                    holoschem.render_particlespwaner_ids[#holoschem.render_particlespwaner_ids + 1] = ps
+                end
+            end
+        end
+    end
 end
 
 
@@ -168,9 +170,9 @@ end
 particledef
 ]]
 local particledeftemplate = {
-    pos = {x=0, y=0, z=0},
-    velocity = {x=0, y=0, z=0},
-    acceleration = {x=0, y=0, z=0},
+    pos = { x = 0, y = 0, z = 0 },
+    velocity = { x = 0, y = 0, z = 0 },
+    acceleration = { x = 0, y = 0, z = 0 },
     -- Spawn particle at pos with velocity and acceleration
 
     expirationtime = 1,
@@ -208,14 +210,14 @@ local particledeftemplate = {
     playername = "singleplayer",
     -- Optional, if specified spawns particle only on the player's client
 
-    animation = {"Tile Animation definition"},
+    animation = { "Tile Animation definition" },
     -- Optional, specifies how to animate the particle texture
 
     glow = 0,
     -- Optional, specify particle self-luminescence in darkness.
     -- Values 0-14.
 
-    node = {name = "ignore", param2 = 0},
+    node = { name = "ignore", param2 = 0 },
     -- Optional, if specified the particle will have the same appearance as
     -- node dig particles for the given node.
     -- `texture` and `animation` will be ignored if this is set.
@@ -226,15 +228,15 @@ local particledeftemplate = {
     -- particle texture is picked.
     -- Otherwise, the default behavior is used. (currently: any random tile)
 
-    drag = {x=0, y=0, z=0},
+    drag = { x = 0, y = 0, z = 0 },
     -- v5.6.0 and later: Optional drag value, consult the following section
     -- Note: Only a vector is supported here. Alternative forms like a single
     -- number are not supported.
 
-    jitter = {min = ..., max = ..., bias = 0},
+    jitter = { min = ..., max = ..., bias = 0 },
     -- v5.6.0 and later: Optional jitter range, consult the following section
 
-    bounce = {min = ..., max = ..., bias = 0},
+    bounce = { min = ..., max = ..., bias = 0 },
     -- v5.6.0 and later: Optional bounce range, consult the following section
 }
 
@@ -286,7 +288,7 @@ local particlespawnerdeftemplate = {
     playername = "singleplayer",
     -- Optional, if specified spawns particles only on the player's client
 
-    animation = {"Tile Animation definition"},
+    animation = { "Tile Animation definition" },
     -- Optional, specifies how to animate the particles' texture
     -- v5.6.0 and later: set length to -1 to synchronize the length
     -- of the animation with the expiration time of individual particles.
@@ -296,7 +298,7 @@ local particlespawnerdeftemplate = {
     -- Optional, specify particle self-luminescence in darkness.
     -- Values 0-14.
 
-    node = {name = "ignore", param2 = 0},
+    node = { name = "ignore", param2 = 0 },
     -- Optional, if specified the particles will have the same appearance as
     -- node dig particles for the given node.
     -- `texture` and `animation` will be ignored if this is set.
@@ -311,12 +313,12 @@ local particlespawnerdeftemplate = {
     -- Legacy fields --
     -------------------
 
-    minpos = {x=0, y=0, z=0},
-    maxpos = {x=0, y=0, z=0},
-    minvel = {x=0, y=0, z=0},
-    maxvel = {x=0, y=0, z=0},
-    minacc = {x=0, y=0, z=0},
-    maxacc = {x=0, y=0, z=0},
+    minpos = { x = 0, y = 0, z = 0 },
+    maxpos = { x = 0, y = 0, z = 0 },
+    minvel = { x = 0, y = 0, z = 0 },
+    maxvel = { x = 0, y = 0, z = 0 },
+    minacc = { x = 0, y = 0, z = 0 },
+    maxacc = { x = 0, y = 0, z = 0 },
     minexptime = 1,
     maxexptime = 1,
     minsize = 1,
@@ -330,30 +332,30 @@ local particlespawnerdeftemplate = {
 
 
 local newparticlespawnerdeftemplate = {
-  -- old syntax
-  maxpos = {x = 0, y = 0, z = 0},
-  minpos = {x = 0, y = 0, z = 0},
+    -- old syntax
+    maxpos = { x = 0, y = 0, z = 0 },
+    minpos = { x = 0, y = 0, z = 0 },
 
-  -- absolute value
-  pos = 0,
-  -- all components of every particle's position vector will be set to this
-  -- value
+    -- absolute value
+    pos = 0,
+    -- all components of every particle's position vector will be set to this
+    -- value
 
-  -- vec3
-  pos = vector.new(0,0,0),
-  -- all particles will appear at this exact position throughout the lifetime
-  -- of the particlespawner
+    -- vec3
+    pos = vector.new(0, 0, 0),
+    -- all particles will appear at this exact position throughout the lifetime
+    -- of the particlespawner
 
-  -- vec3 range
-  pos = {
+    -- vec3 range
+    pos = {
         -- the particle will appear at a position that is picked at random from
         -- within a cubic range
 
-        min = vector.new(0,0,0),
+        min = vector.new(0, 0, 0),
         -- `min` is the minimum value this property will be set to in particles
         -- spawned by the generator
 
-        max = vector.new(0,0,0),
+        max = vector.new(0, 0, 0),
         -- `max` is the minimum value this property will be set to in particles
         -- spawned by the generator
 
@@ -367,7 +369,7 @@ local newparticlespawnerdeftemplate = {
     },
 
     -- tween table
-    pos_tween = {"..."},
+    pos_tween = { "..." },
     -- a tween table should consist of a list of frames in the same form as the
     -- untweened pos property above, which the engine will interpolate between,
     -- and optionally a number of properties that control how the interpolation
@@ -399,19 +401,21 @@ local newparticlespawnerdeftemplate = {
 
         -- frames
 
-            -- floats
-            0, 0,
+        -- floats
+        0,
+        0,
 
-            -- vec3s
-            vector.new(0,0,0),
-            vector.new(0,0,0),
+        -- vec3s
+        vector.new(0, 0, 0),
+        vector.new(0, 0, 0),
 
-            -- vec3 ranges
-            { min = vector.new(0,0,0), max = vector.new(0,0,0), bias = 0 },
-            { min = vector.new(0,0,0), max = vector.new(0,0,0), bias = 0 },
+        -- vec3 ranges
+        { min = vector.new(0, 0, 0), max = vector.new(0, 0, 0), bias = 0 },
+        { min = vector.new(0, 0, 0), max = vector.new(0, 0, 0), bias = 0 },
 
-            -- mixed
-            0, { min = vector.new(0,0,0), max = vector.new(0,0,0), bias = 0 },
+        -- mixed
+        0,
+        { min = vector.new(0, 0, 0), max = vector.new(0, 0, 0), bias = 0 },
     },
 }
 --[[
