@@ -1,7 +1,7 @@
 local modname = minetest.get_current_modname()
 local modpath = minetest.get_modpath(modname)
 
-rawset(_G, "holoschem", holoschem)
+rawset(_G, "holoschem", {})
 
 holoschem = {
     modname = modname,
