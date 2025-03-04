@@ -39,6 +39,7 @@ rotations.facedir = {
 local gs_interval = 0.5
 
 
+local vector_1 = vector.new(1, 1, 1)
 local function render_schem()
     if holoschem.render_particlespwaner_ids == nil then
         holoschem.render_particlespwaner_ids = {}
@@ -123,12 +124,12 @@ local function render_schem()
     local player_pos = core.localplayer:get_pos()
     local schematic = holoschem.schematic
     if schematic then
-        local vector_1 = vector.new(1, 1, 1)
         local size = schematic.size
         local voxel_area = VoxelArea:new({ MinEdge = vector_1, MaxEdge = size })
         local schem_data = schematic.data
         local count = size.x * size.y * size.z
         local node_black_list = {}
+        local probability = schematic.probability
 
         -- Remove air from the schematic preview
         for i, map_node in pairs(schem_data) do
