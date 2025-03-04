@@ -1,7 +1,9 @@
 local modname = minetest.get_current_modname()
 local modpath = minetest.get_modpath(modname)
 
-holoschem = holoschem or {
+rawset(_G, "holoschem", holoschem)
+
+holoschem = {
     modname = modname,
     modpath = modpath,
     textures = {},
